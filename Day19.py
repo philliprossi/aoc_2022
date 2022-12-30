@@ -8,40 +8,12 @@ from functools import lru_cache, total_ordering
 
 def find_blueprint_options(ore_robots, clay_robots, obsidian_robots, geode_robots, ore, clay, obsidian, geodes, current_time, blueprint,i):
 
-    # if blueprint['clay_robot']['ore'] + blueprint['obsidian_robot']['clay'] + blueprint['geode_robot']['obsidian'] > 24:
-    #     print(f'Blueprint {blueprint}, results {0}')
-    #     return 0
-
     results  = d2(ore_robots, clay_robots, obsidian_robots, geode_robots, ore, clay, obsidian, geodes, current_time, blueprint,i)
     print(f'Blueprint {blueprint}, results {results}')
     return results
 
 
 def d2(ore_robots, clay_robots, obsidian_robots, geode_robots, ore, clay, obsidian, geodes, current_time, blueprint,i):
-        # print(f'NEW ROUND MINUTE: {current_time}')
-        # print(f'ore_robots: {ore_robots}')
-        # print(f'clay_robots: {clay_robots}')
-        # print(f'obsidian_robots: {obsidian_robots}')
-        # print(f'geode_robots: {geode_robots}')
-        # print(f'ore: {ore}')
-        # print(f'clay: {clay}')
-        # print(f'obsidian: {obsidian}')
-        # print(f'geodes: {geodes}')
-
-        if geode_min.get((current_time,i),0)>geodes:
-             return 0
-        elif (current_time,i) in geode_min:
-             geode_min[(current_time,i)] = max(geodes, geode_min[(current_time,i)]) 
-        else:
-             geode_min[(current_time,i)] = geodes
-
-        if geode_robots_min.get((current_time,i),0) > geode_robots:
-             return 0
-        elif (current_time,i) in geode_robots_min:
-             geode_robots_min[(current_time,i)] = max(geode_robots, geode_robots_min[(current_time,i)]) 
-        else:
-             geode_robots_min[(current_time,i)] = geode_robots
-
 
         if current_time == 25:
             return geodes
@@ -55,11 +27,11 @@ def d2(ore_robots, clay_robots, obsidian_robots, geode_robots, ore, clay, obsidi
         #find what to build
         buy_options = [(1,0,0,0),(0,1,0,0),(0,0,1,0), (0,0,0,1),(0,0,0,0)]
 
-        if ore_robots >= 7:
+        if ore_robots >= max(blueprint['ore_robot']['ore'], blueprint['clay_robot']['ore'], blueprint['geode_robot']['ore'], blueprint['obsidian_robot']['ore']):   
             buy_options.remove((1,0,0,0))
-        if clay_robots >= 8:
+        if clay_robots >= blueprint['obsidian_robot']['clay']:
             buy_options.remove((0,1,0,0))
-        if obsidian_robots >= 8:
+        if obsidian_robots >= blueprint['geode_robot']['obsidian']:
             buy_options.remove((0,0,1,0))
     
         final_buy_options = []
@@ -141,7 +113,7 @@ if __name__ == '__main__':
             args.append((ore_robots, clay_robots, obsidian_robots, geode_robots, ore, clay, obsidian, geodes, 1,blueprint, i))
             i+=1
 
-        with mp.Pool(4) as p:
+        with mp.Pool(3) as p:
             results = p.starmap(find_blueprint_options, args)
         
         print(results)
